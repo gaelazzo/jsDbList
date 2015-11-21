@@ -117,7 +117,8 @@ describe('dbDescriptor ', function () {
                     done();
                 });
         });
-
+        
+     
 
         it('tableDescriptor should fail when table does not exist', function (done) {
             sqlConn.tableDescriptor('customer_no')
@@ -146,6 +147,24 @@ describe('dbDescriptor ', function () {
                     done();
                 });
         });
+
+        it('tableDescriptor should return an object with all columns', function(done) {
+            dbDescr.table('customer')
+                .done(function (p) {
+                expect(_.find(p.columns, { name: 'age' }).type).toEqual('int');
+                expect(_.find(p.columns, { name: 'idcustomer' }).type).toEqual('int');
+                expect(_.find(p.columns, { name: 'idcustomerkind' }).type).toEqual('int');
+                expect(_.find(p.columns, { name: 'name' }).type).toEqual('varchar');
+                expect(_.find(p.columns, { name: 'birth' }).type).toEqual('datetime');
+                done();
+            })
+                .fail(function (err) {
+                expect(err).toBeUndefined();
+                done();
+            });
+        });
+        
+        
 
         it('tableDescriptor should have a key', function (done) {
             dbDescr.table('customer')

@@ -1,3 +1,4 @@
+/// <binding AfterBuild='jasmine_node:auto' />
 'use strict';
 
 /*globals initConfig, appPath */
