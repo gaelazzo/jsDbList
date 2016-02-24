@@ -54,7 +54,13 @@ var _ = require('lodash');
 
 
 
-
+/** @namespace Context.dbCode */
+/** @namespace Context.dbDescriptor */
+/** @namespace Context.postDataCreator */
+/** @namespace Context.formatter */
+/** @namespace Context.sqlConn */
+/** @namespace Context.environment */
+/** @namespace Context.dataAccess */
 
 /**
  * Maintains a list of db connection information, each identified by a dbCode
