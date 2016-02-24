@@ -5,11 +5,55 @@
 'use strict';
 /* globals Connection */
 
-var
-  EncryptedFile = require('jsEncryptedFile'),
-  Deferred = require("JQDeferred"),
-  DataAccess = require("jsDataAccess").DataAccess,
-  _ = require('lodash');
+var EncryptedFile = require('jsEncryptedFile');
+
+/**
+ *
+ * @type {Deferred}
+ */
+var Deferred = require("jsDeferred");
+var DataAccess = require("jsDataAccess").DataAccess;
+var _ = require('lodash');
+
+
+/**
+ * Execution context for a request
+ * @class Context
+ */
+
+/**
+ * dbCode for the current context
+ * @property {string} dbCode
+ */
+
+/**
+ * dbDescriptor for the current context
+ * @property {DbDescriptor} dbDescriptor
+ */
+
+/**
+ * @property postDataCreator
+ */
+
+
+/**
+ * @property {sqlFormatter} formatter
+ */
+
+/**
+ * @property {Connection} sqlConn
+ */
+
+/**
+ * @property {Environment} environment
+ */
+
+/**
+ * @property {DataAccess} dataAccess
+ */
+
+
+
 
 
 /**
@@ -18,38 +62,14 @@ var
  */
 
 
-
-
 /**
- * @class dbDescriptor
+ * @class DbDescriptor
  * A dbDescriptor takes track of the structure of a database. It doesn't manage different schemas.
  * The structure of a table is described with a TableDescriptor
  * module dbDescriptor
  */
 
 
-
-/**
- * @class TableDescriptor
- * The structure of a table is described with a TableDescriptor.
- * A TableDescriptor is an object having those properties:
- * {string} xtype:      T for  tables, V for Views
- * {string} name:       table or view name
- * {ColumnDescriptor[]} columns
- *
- */
-
-/**
- * @class ColumnDescriptor
- * An object describing a column of a table. It is required to have the following fields:
- *  {string} name        - field name
- *  {string} type        - db type
- *  {number} max_length  - size of field in bytes
- *  {number} precision   - n. of integer digits managed
- *  {number} scale       - n. of decimal digits
- *  {boolean} is_nullable - true if it can be null
- *  {boolean} pk          - true if it is primary key
- */
 
 
 
@@ -66,9 +86,9 @@ var dbListFile, dbList;
  * @param {object} [options.secret] object contaning key,iv,pwd to replace the config
 
  */
-function init(options){
-  dbListFile = new EncryptedFile(options);
-  dbList = dbListFile.read();
+function init(options) {
+    dbListFile = new EncryptedFile(options);
+    dbList = dbListFile.read();
 }
 /**
  * Creates a DbDescriptor
@@ -78,68 +98,76 @@ function init(options){
  */
 function DbDescriptor(sqlConn) {
 
-  /**
-   * @private
-   * Collection of stored TableDescriptor
-   * @property tables
-   * @type Array[DataTables]
-   */
-  this.tables = {};
-  this.sqlConn = sqlConn;
+    /**
+     * @private
+     * Collection of stored TableDescriptor
+     * @property tables
+     * @type TableDescriptor[]
+     */
+    this.tables = {};
+    this.sqlConn = sqlConn;
 }
 
 DbDescriptor.prototype = {
-  constructor: DbDescriptor
+    constructor: DbDescriptor
 };
 
 /**
  * Get/Set the structure of a table in a JQuery fashioned style
  * @method table
- * @class DbDescriptor
  * @param {string} tableName
  * @param {TableDescriptor} [tableDescriptor]
  * @returns {TableDescriptor} promise to a TableDescriptor or undefined if it was a Set
  */
 DbDescriptor.prototype.table = function (tableName, tableDescriptor) {
-  var def = Deferred(),
-    that = this;
-  if (tableDescriptor === undefined) {
-    if (this.tables[tableName]) {
-      def.resolve(this.tables[tableName]);
-      return def.promise();
+    var def = Deferred(),
+        that = this;
+    if (tableDescriptor === undefined) {
+        if (this.tables[tableName]) {
+            def.resolve(this.tables[tableName]);
+            return def.promise();
+        }
+        this.sqlConn
+            .tableDescriptor(tableName)
+            .done(function (results) {
+                that.tables[tableName] = new TableDescriptor(results.tableName, results.xtype,
+                    results.isDbo, results.columns);
+                def.resolve(that.tables[tableName]);
+            })
+            .fail(function (err) {
+                def.reject(err);
+            });
+        return def.promise();
     }
-    this.sqlConn
-      .tableDescriptor(tableName)
-      .done(function (results) {
-        that.tables[tableName] = new TableDescriptor(results.tableName, results.xtype,
-          results.isDbo, results.columns);
-        def.resolve(that.tables[tableName]);
-      })
-      .fail(function (err) {
-        def.reject(err);
-      });
-    return def.promise();
-  }
-  this.tables[tableName] = tableDescriptor;
+    this.tables[tableName] = tableDescriptor;
 };
 
 /**
  * Clears the information stored about a table
  * @method forgetTable
- * @class DbDescriptor
  * @param {string} tableName
  * @returns {*}
  */
 DbDescriptor.prototype.forgetTable = function (tableName) {
-  delete this.tables[tableName];
+    delete this.tables[tableName];
 };
+
+
+/**
+ * @class TableDescriptor
+ * The structure of a table is described with a TableDescriptor.
+ * A TableDescriptor is an object having those properties:
+ * {string} xtype:      T for  tables, V for Views
+ * {string} name:       table or view name
+ * {ColumnDescriptor[]} columns
+ *
+ */
 
 
 /**
  * @private
  * creates a TableDescriptor
  * @method TableDescriptor
- * @class TableDescriptor
  * @private
  * @constructor
  * @param {string} name
@@ -148,37 +176,68 @@ DbDescriptor.prototype.forgetTable = function (tableName) {
  * @param {ColumnDescriptor[]} columns
  */
 function TableDescriptor(name, xtype, isDbo, columns) {
-  this.name = name;
-  this.xtype = xtype;
-  this.dbo = isDbo;
-  this.columns = columns;
+
+    /**
+     * Table name
+     * @type {string}
+     */
+    this.name = name;
+
+    /**
+     * T for tables, V for views
+     * @type {string|string}
+     */
+    this.xtype = xtype;
+
+    /**
+     * isDbo true if is DBO table/view
+     * @type {boolean}
+     */
+    this.dbo = isDbo;
+
+    /**
+     * Array of column descriptor
+     * @type {ColumnDescriptor[]}
+     */
+    this.columns = columns;
 }
 
 
 TableDescriptor.prototype = {
-  constructor: TableDescriptor
+    constructor: TableDescriptor
 };
 
 /**
  * gets a column descriptor given the column name
  * @method column
- * @class TableDescriptor
  * @param {string} columnName
  * @returns {ColumnDescriptor}
  */
 TableDescriptor.prototype.column = function (columnName) {
-  return _.find(this.columns, {'name': columnName});
+    return _.find(this.columns, {'name': columnName});
 };
 
 /**
  * gets an array of all primary key column names
  * @method getKey
- * @class TableDescriptor
- * @returns {array}
+ * @returns {Array}
  */
 TableDescriptor.prototype.getKey = function () {
-  return _.pluck(_.where(this.columns, {pk: true}), 'name');
+    return _.pluck(_.where(this.columns, {pk: true}), 'name');
 };
+
+/**
+ * @class ColumnDescriptor
+ * An object describing a column of a table. It is required to have the following fields:
+ *  {string} name        - field name
+ *  {string} type        - db type
+ *  {number} max_length  - size of field in bytes
+ *  {number} precision   - n. of integer digits managed
+ *  {number} scale       - n. of decimal digits
+ *  {boolean} is_nullable - true if it can be null
+ *  {boolean} pk          - true if it is primary key
+ */
+
 
 /**
  * @private
@@ -193,11 +252,11 @@ var allDescriptors = {};
  * @returns {DbDescriptor}
  */
 function getDescriptor(dbCode) {
-  if (allDescriptors.hasOwnProperty(dbCode)) {
+    if (allDescriptors.hasOwnProperty(dbCode)) {
+        return allDescriptors[dbCode];
+    }
+    allDescriptors[dbCode] = new DbDescriptor(getConnection(dbCode));
     return allDescriptors[dbCode];
-  }
-  allDescriptors[dbCode] = new DbDescriptor(getConnection(dbCode));
-  return allDescriptors[dbCode];
 }
 
 
@@ -207,15 +266,15 @@ function getDescriptor(dbCode) {
  * @returns {Connection}
  */
 function getConnection(dbCode) {
-  var options = getDbInfo(dbCode);
-  if (options) {
-    options.dbCode = dbCode;
-    var Connection = require(options.sqlModule).Connection;
-    if (Connection) {
-      return new Connection(options);
+    var options = getDbInfo(dbCode);
+    if (options) {
+        options.dbCode = dbCode;
+        var Connection = require(options.sqlModule).Connection;
+        if (Connection) {
+            return new Connection(options);
+        }
     }
-  }
-  return undefined;
+    return undefined;
 }
 
 /**
@@ -224,21 +283,21 @@ function getConnection(dbCode) {
  * @returns {*}
  */
 function getDataAccess(dbCode) {
-  var q = Deferred(),
-    sqlConn = this.getConnection(dbCode);
-  new DataAccess({
-    sqlConn: sqlConn,
-    errCallBack: function (err) {
-      q.reject(err);
-    },
-    doneCallBack: function (DA) {
-      //console.log('resolved:'.DA);
-      q.resolve(DA);
-    }
-  });
+    var q = Deferred(),
+        sqlConn = this.getConnection(dbCode);
+    new DataAccess({
+        sqlConn: sqlConn,
+        errCallBack: function (err) {
+            q.reject(err);
+        },
+        doneCallBack: function (DA) {
+            //console.log('resolved:'.DA);
+            q.resolve(DA);
+        }
+    });
 
 
-  return q.promise();
+    return q.promise();
 }
 
 /**
@@ -258,12 +317,11 @@ function getDataAccess(dbCode) {
 
  */
 function getDbInfo(dbCode) {
-  if (dbList.hasOwnProperty(dbCode)) {
-    return dbList[dbCode];
-  }
-  return undefined;
+    if (dbList.hasOwnProperty(dbCode)) {
+        return dbList[dbCode];
+    }
+    return undefined;
 }
-
 
 
 /**
@@ -273,8 +331,8 @@ function getDbInfo(dbCode) {
  * @param {object} dbData
  */
 function setDbInfo(dbCode, dbData) {
-  dbList[dbCode] = dbData;
-  dbListFile.write(dbList);
+    dbList[dbCode] = dbData;
+    dbListFile.write(dbList);
 }
 
 /**
@@ -284,10 +342,10 @@ function setDbInfo(dbCode, dbData) {
  * @returns {*}
  */
 function delDbInfo(dbCode) {
-  if (dbList.hasOwnProperty(dbCode)) {
-    delete dbList[dbCode];
-    dbListFile.write(dbList);
-  }
+    if (dbList.hasOwnProperty(dbCode)) {
+        delete dbList[dbCode];
+        dbListFile.write(dbList);
+    }
 }
 
 
@@ -298,23 +356,23 @@ function delDbInfo(dbCode) {
  * @returns {boolean}
  */
 function existsDbInfo(dbCode) {
-  return dbList.hasOwnProperty(dbCode);
+    return dbList.hasOwnProperty(dbCode);
 }
 
 
 module.exports = {
-  init: init,
+    init: init,
 
-  getDbInfo: getDbInfo,
-  setDbInfo:setDbInfo,
-  delDbInfo:delDbInfo,
-  existsDbInfo: existsDbInfo,
+    getDbInfo: getDbInfo,
+    setDbInfo: setDbInfo,
+    delDbInfo: delDbInfo,
+    existsDbInfo: existsDbInfo,
 
-  getConnection: getConnection,
-  getDataAccess: getDataAccess,
+    getConnection: getConnection,
+    getDataAccess: getDataAccess,
 
-  DbDescriptor: DbDescriptor,
-  TableDescriptor: TableDescriptor,
-  getDescriptor: getDescriptor
+    DbDescriptor: DbDescriptor,
+    TableDescriptor: TableDescriptor,
+    getDescriptor: getDescriptor
 };
 

@@ -1,13 +1,24 @@
-/*globals describe,beforeEach,it,expect,jasmine,spyOn,afterEach,xit*/
+/*globals describe,beforeEach,it,expect,jasmine,spyOn,afterEach,xit */
+/* jshint node:true */
+
 'use strict';
 
 var DataAccess = require('jsDataAccess');
 var sqlServerDriver = require('jsSqlServerDriver');
+/**
+ *
+ * @type {Deferred}
+ */
+var Deferred = require("jsDeferred");
 
-var Deferred = require("JQDeferred");
+
 var dbList = require('../../src/jsDbList');
 var DbDescriptor = dbList.DbDescriptor;
-var fs= require('fs');
+
+/**
+ * @type fs
+ */
+var fs = require('fs');
 
 var $dq = require('jsdataquery');
 var _ = require('lodash');
@@ -31,30 +42,30 @@ var dbConfig = JSON.parse(fs.readFileSync(configName).toString());
 /**
  * setup the dbList module
  */
-dbList.init({ encrypt: false,
-                decrypt: false,
-                encryptedFileName: 'test/dbList.bin'
-            });
+dbList.init({
+    encrypt: false,
+    decrypt: false,
+    encryptedFileName: 'test/dbList.bin'
+});
 
 var good = {
-        server: dbConfig.server,
-        useTrustedConnection: false,
-        user: dbConfig.user,
-        pwd: dbConfig.pwd,
-        database: dbConfig.dbName,
-        sqlModule: 'jsSqlServerDriver'
-    };
+    server: dbConfig.server,
+    useTrustedConnection: false,
+    user: dbConfig.user,
+    pwd: dbConfig.pwd,
+    database: dbConfig.dbName,
+    sqlModule: 'jsSqlServerDriver'
+};
 
 
 describe('setup dataBase', function () {
     var sqlConn;
     beforeEach(function (done) {
-        dbList.setDbInfo('test',good);
+        dbList.setDbInfo('test', good);
         sqlConn = dbList.getConnection('test');
-        sqlConn.open().
-            done(function () {
-                done();
-            });
+        sqlConn.open().done(function () {
+            done();
+        });
     }, 10000);
 
     afterEach(function () {
@@ -87,10 +98,9 @@ describe('dbDescriptor ', function () {
     beforeEach(function (done) {
         sqlConn = dbList.getConnection('test');
         dbDescr = new DbDescriptor(sqlConn);
-        sqlConn.open().
-            done(function () {
-                done();
-            });
+        sqlConn.open().done(function () {
+            done();
+        });
     });
 
     afterEach(function () {
@@ -117,8 +127,6 @@ describe('dbDescriptor ', function () {
                     done();
                 });
         });
-        
-     
 
         it('tableDescriptor should fail when table does not exist', function (done) {
             sqlConn.tableDescriptor('customer_no')
@@ -148,23 +156,22 @@ describe('dbDescriptor ', function () {
                 });
         });
 
-        it('tableDescriptor should return an object with all columns', function(done) {
+        it('tableDescriptor should return an object with all columns', function (done) {
             dbDescr.table('customer')
                 .done(function (p) {
-                expect(_.find(p.columns, { name: 'age' }).type).toEqual('int');
-                expect(_.find(p.columns, { name: 'idcustomer' }).type).toEqual('int');
-                expect(_.find(p.columns, { name: 'idcustomerkind' }).type).toEqual('int');
-                expect(_.find(p.columns, { name: 'name' }).type).toEqual('varchar');
-                expect(_.find(p.columns, { name: 'birth' }).type).toEqual('datetime');
-                done();
-            })
+                    expect(_.find(p.columns, {name: 'age'}).type).toEqual('int');
+                    expect(_.find(p.columns, {name: 'idcustomer'}).type).toEqual('int');
+                    expect(_.find(p.columns, {name: 'idcustomerkind'}).type).toEqual('int');
+                    expect(_.find(p.columns, {name: 'name'}).type).toEqual('varchar');
+                    expect(_.find(p.columns, {name: 'birth'}).type).toEqual('datetime');
+                    done();
+                })
                 .fail(function (err) {
-                expect(err).toBeUndefined();
-                done();
-            });
+                    expect(err).toBeUndefined();
+                    done();
+                });
         });
-        
-        
+
 
         it('tableDescriptor should have a key', function (done) {
             dbDescr.table('customer')
@@ -221,16 +228,14 @@ describe('dbList', function () {
 });
 
 
-
 describe('destroy dataBase', function () {
     var sqlConn;
     beforeEach(function (done) {
-        dbList.setDbInfo('test',good);
+        dbList.setDbInfo('test', good);
         sqlConn = dbList.getConnection('test');
-        sqlConn.open().
-            done(function () {
-                done();
-            });
+        sqlConn.open().done(function () {
+            done();
+        });
     }, 10000);
 
     afterEach(function () {
@@ -241,7 +246,7 @@ describe('destroy dataBase', function () {
         sqlConn = null;
         if (fs.existsSync('test/dbList.bin')) {
             fs.unlinkSync('test/dbList.bin');
-        };
+        }
     });
 
     it('should run the destroy script', function (done) {
