@@ -85,7 +85,7 @@ var dbListFile, dbList;
  * Initializes dbList
  * @method init
  * @param options
- * @param {string} options.fileName Name of the clean file to encrypt
+ * @param {string} [options.fileName] Name of the clean file to encrypt
  * @param {string} options.encryptedFileName name of the file to be created
  * @param {bool} options.encrypt true if the file has to be encrypted
  * @param {bool} options.decrypt true if the file has to be decrypted
