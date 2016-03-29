@@ -1,3 +1,13 @@
 /test/db.json
 .idea
 /dblist.bin
+
+.ntvs_analysis.dat
+doc
+bin
+build
+node_modules
+obj
+jsDbList.njsproj
+jsDbList.sln
+*.suo
