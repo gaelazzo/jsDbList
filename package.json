@@ -12,9 +12,7 @@
     "jsEncryptedFile": "https://github.com/gaelazzo/jsEncryptedFile",
     "jsDataAccess": "https://github.com/gaelazzo/jsDataAccess",
     "JQDeferred": "^2.1.0",
-    "jsDataSet": "https://github.com/gaelazzo/jsDataSet",
-    "jsDataQuery": "https://github.com/gaelazzo/jsDataQuery",
-    "jsMultiSelect":"https://github.com/gaelazzo/jsMultiSelect"
+    "jsDataSet": "https://github.com/gaelazzo/jsDataSet"
   },
   "devDependencies": {
     "edge": "~5.0.0",

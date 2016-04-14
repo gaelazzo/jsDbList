@@ -19,7 +19,6 @@ var DbDescriptor = dbList.DbDescriptor;
  */
 var fs = require('fs');
 
-var $dq = require('jsdataquery');
 var _ = require('lodash');
 
 /**
