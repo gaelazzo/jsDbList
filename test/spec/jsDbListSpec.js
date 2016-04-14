@@ -2,14 +2,13 @@
 /* jshint node:true */
 
 'use strict';
-
+var path = require("path");
 var DataAccess = require('jsDataAccess');
-var sqlServerDriver = require('jsSqlServerDriver');
 /**
  *
  * @type {Deferred}
  */
-var Deferred = require("jsDeferred");
+var Deferred = require("JQDeferred");
 
 
 var dbList = require('../../src/jsDbList');
@@ -35,17 +34,27 @@ var _ = require('lodash');
  *  }
  */
 //PUT THE  FILENAME OF YOUR FILE HERE:
-var configName = 'D:/gitrepo/jsDBList/test/db.json';
 
-var dbConfig = JSON.parse(fs.readFileSync(configName).toString());
 
+var configName = path.join('test', 'db.json');
+var dbConfig;
+if (process.env.TRAVIS){
+    dbConfig = { "server": "127.0.0.1",
+        "dbName": "test",
+        "user": "root",
+        "pwd": ""
+    };
+}
+else {
+    dbConfig = JSON.parse(fs.readFileSync(configName).toString());
+}
 /**
  * setup the dbList module
  */
 dbList.init({
     encrypt: false,
     decrypt: false,
-    encryptedFileName: 'test/dbList.bin'
+    encryptedFileName: path.join('test', 'dbList.bin')
 });
 
 var good = {
@@ -54,7 +63,7 @@ var good = {
     user: dbConfig.user,
     pwd: dbConfig.pwd,
     database: dbConfig.dbName,
-    sqlModule: 'jsSqlServerDriver'
+    sqlModule: 'jsMySqlDriver'
 };
 
 
@@ -77,7 +86,7 @@ describe('setup dataBase', function () {
 
 
     it('should run the setup script', function (done) {
-        sqlConn.run(fs.readFileSync('test/setup.sql').toString())
+        sqlConn.run(fs.readFileSync(path.join('test', 'setup.sql')).toString())
             .done(function () {
                 expect(true).toBeTruthy();
                 done();
@@ -230,6 +239,7 @@ describe('dbList', function () {
 
 describe('destroy dataBase', function () {
     var sqlConn;
+
     beforeEach(function (done) {
         dbList.setDbInfo('test', good);
         sqlConn = dbList.getConnection('test');

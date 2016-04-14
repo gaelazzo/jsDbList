@@ -11,7 +11,7 @@ var EncryptedFile = require('jsEncryptedFile');
  *
  * @type {Deferred}
  */
-var Deferred = require("jsDeferred");
+var Deferred = require("JQDeferred");
 var DataAccess = require("jsDataAccess").DataAccess;
 var _ = require('lodash');
 
@@ -229,7 +229,7 @@ TableDescriptor.prototype.column = function (columnName) {
  * @returns {Array}
  */
 TableDescriptor.prototype.getKey = function () {
-    return _.pluck(_.where(this.columns, {pk: true}), 'name');
+    return _.map(_.filter(this.columns, {pk: 1}), 'name');
 };
 
 /**
@@ -297,7 +297,6 @@ function getDataAccess(dbCode) {
             q.reject(err);
         },
         doneCallBack: function (DA) {
-            //console.log('resolved:'.DA);
             q.resolve(DA);
         }
     });
