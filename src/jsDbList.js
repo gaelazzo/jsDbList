@@ -126,9 +126,9 @@ DbDescriptor.prototype = {
  * @returns {TableDescriptor} promise to a TableDescriptor or undefined if it was a Set
  */
 DbDescriptor.prototype.table = function (tableName, tableDescriptor) {
-    var def = Deferred(),
-        that = this;
+    var that = this;
     if (tableDescriptor === undefined) {
+        var def = Deferred();
         if (this.tables[tableName]) {
             def.resolve(this.tables[tableName]);
             return def.promise();
@@ -223,6 +223,26 @@ TableDescriptor.prototype.column = function (columnName) {
     return _.find(this.columns, {'name': columnName});
 };
 
+
+
+/**
+ * gets a column descriptor given the column name
+ * @method columnNames
+ * @returns {string[]}
+ */
+TableDescriptor.prototype.columnNames = function () {
+    return _.map(this.columns, 'name');
+};
+
+TableDescriptor.prototype.describeTable = function (t){
+    var k= this.getKey();
+    if (k.length>0) {
+        t.key(k);
+    }
+    t.columns = this.columnNames();
+
+}
+
 /**
  * gets an array of all primary key column names
  * @method getKey
@@ -290,7 +310,7 @@ function getConnection(dbCode) {
  */
 function getDataAccess(dbCode) {
     var q = Deferred(),
-        sqlConn = this.getConnection(dbCode);
+        sqlConn = getConnection(dbCode);
     new DataAccess({
         sqlConn: sqlConn,
         errCallBack: function (err) {

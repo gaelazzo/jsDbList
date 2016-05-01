@@ -259,7 +259,7 @@ describe('destroy dataBase', function () {
     });
 
     it('should run the destroy script', function (done) {
-        sqlConn.run(fs.readFileSync('test/destroy.sql').toString())
+        sqlConn.run(fs.readFileSync(path.join('test', 'destroy.sql')).toString())
             .done(function () {
                 expect(true).toBeTruthy();
                 done();
