@@ -7,32 +7,32 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "lodash": "4.7.13",
-    "async": "~1.4.0",
-    "jsEncryptedFile": "https://github.com/gaelazzo/jsEncryptedFile",
-    "jsDataAccess": "https://github.com/gaelazzo/jsDataAccess",
     "JQDeferred": "^2.1.0",
-    "jsDataSet": "https://github.com/gaelazzo/jsDataSet"
+    "async": "~1.4.0",
+    "edge-sql": "git://github.com/gaelazzo/edge-sql.git",
+    "jsDataAccess": "git+https://github.com/gaelazzo/jsDataAccess.git",
+    "jsDataSet": "git+https://github.com/gaelazzo/jsDataSet.git",
+    "jsEncryptedFile": "git+https://github.com/gaelazzo/jsEncryptedFile.git",
+    "lodash": "~4.17.15"
   },
   "devDependencies": {
-    "edge": "~5.0.0",
-    "grunt": "~0.4.5",
-    "jsMySqlDriver":"https://github.com/gaelazzo/jsMySqlDriver",
+    "edge-js": "git://github.com/agracio/edge-js.git",
     "edge-sql-maxpower": "git://github.com/gaelazzo/edge-sql.git",
+    "grunt": "~1.0.4",
     "grunt-contrib-watch": "1.0.0",
     "grunt-contrib-yuidoc": "1.0.0",
-    "jasmine-core": "^2.2.0",
-    "jasmine-node": "2.0.0-beta4",
-    "grunt-jasmine-node": "https://github.com/gaelazzo/grunt-jasmine-node",
-    "jasmine-collection-matchers":"*",
+    "grunt-jasmine-node": "git+https://github.com/gaelazzo/grunt-jasmine-node.git",
     "grunt-karma": "^0.10.1",
-    "karma": "^0.12.31",
+    "jasmine-collection-matchers": "*",
+    "jasmine-core": "^2.99.1",
+    "jasmine-node": "2.0.0-beta4",
+    "jsMySqlDriver": "git+https://github.com/gaelazzo/jsMySqlDriver.git",
+    "karma": "^4.3.0",
     "karma-jasmine": "^0.3.5",
     "karma-junit-reporter": "^0.2.2",
     "karma-sauce-launcher": "^0.2.10",
-    "load-grunt-tasks": "^3.4.1",
-    "time-grunt": "^1.0.0"
-
+    "load-grunt-tasks": "^3.5.2",
+    "time-grunt": "^1.4.0"
   },
   "repository": {
     "type": "git",
